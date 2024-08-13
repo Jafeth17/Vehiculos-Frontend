@@ -3,6 +3,11 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import VehiculosList from './components/VehiculosList';
 import AgregarVehiculo from './components/AgregarVehiculo';
 import EditarVehiculo from './components/EditarVehiculo';
+import 'primereact/resources/themes/lara-light-blue/theme.css';  // Tema de PrimeReact
+import 'primereact/resources/primereact.min.css';                 // Componentes principales de PrimeReact
+import 'primeicons/primeicons.css';                               // Íconos de PrimeReact
+import 'primeflex/primeflex.css';                                 // Flexbox utilidades de PrimeFlex (opcional)
+
 
 function App() {
     return (
