@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/entradasSalidas';
+const API_URL = 'http://localhost:5000/entradas-salidas';
 
-const obtenerEntradasSalidas = async () => {
-    const response = await axios.get(API_URL);
-    return response.data;
+const obtenerEntradasSalidas = async (queryString = '') => {
+    const response = await fetch(`http://localhost:5000/entradas-salidas/${queryString}`);
+    const data = await response.json();
+    return data;
 };
 
 const crearEntradaSalida = async (entradaSalida) => {
