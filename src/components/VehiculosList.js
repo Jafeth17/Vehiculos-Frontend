@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { obtenerVehiculos, eliminarVehiculo, crearVehiculo, actualizarVehiculo } from '../services/vehiculosService';
 import { DataTable } from 'primereact/datatable';
@@ -7,7 +7,8 @@ import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { Messages } from 'primereact/messages';
+import { Toast } from 'primereact/toast';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import Container from './Container';
 
 const VehiculosList = () => {
@@ -15,8 +16,7 @@ const VehiculosList = () => {
   const [vehiculo, setVehiculo] = useState({ marca: '', modelo: '', placa: '' });
   const [mostrarDialogo, setMostrarDialogo] = useState(false);
   const [editando, setEditando] = useState(false);
-  const [mensaje, setMensaje] = useState(null);
-  const [error, setError] = useState(null);
+  const toast = useRef(null);
 
   useEffect(() => {
       const fetchVehiculos = async () => {
@@ -28,8 +28,16 @@ const VehiculosList = () => {
   }, []);
 
   const handleDelete = async (id) => {
-      await eliminarVehiculo(id);
-      setVehiculos(vehiculos.filter(vehiculo => vehiculo.id !== id));
+      confirmDialog({
+          message: '¿Está seguro de que desea eliminar este vehículo?',
+          header: 'Confirmación',
+          icon: 'pi pi-exclamation-triangle',
+          accept: async () => {
+              await eliminarVehiculo(id);
+              setVehiculos(vehiculos.filter(vehiculo => vehiculo.id !== id));
+              showToast('success', 'Vehículo eliminado con éxito');
+          }
+      });
   };
 
   const openNew = () => {
@@ -46,24 +54,53 @@ const VehiculosList = () => {
 
   const hideDialog = () => {
       setMostrarDialogo(false);
-      setError(null);
-      setMensaje(null);
+  };
+
+  const validateFields = () => {
+      if (!vehiculo.marca) {
+          showToast('error', 'La marca es obligatoria');
+          return false;
+      }
+      if (!vehiculo.modelo) {
+          showToast('error', 'El modelo es obligatorio');
+          return false;
+      }
+      if (!vehiculo.placa) {
+          showToast('error', 'La placa es obligatoria');
+          return false;
+      }
+      if (!/^[A-Z0-9-]+$/.test(vehiculo.placa)) {
+          showToast('error', 'La placa debe ser alfanumérica y puede incluir guiones');
+          return false;
+      }
+      return true;
   };
 
   const saveVehiculo = async () => {
-      try {
-          if (editando) {
-              await actualizarVehiculo(vehiculo.id, vehiculo);
-              setMensaje('Vehículo actualizado exitosamente.');
-          } else {
-              await crearVehiculo(vehiculo);
-              setMensaje('Vehículo agregado exitosamente.');
-          }
-          setVehiculos(await obtenerVehiculos());
-          hideDialog();
-      } catch (error) {
-          setError('Error al guardar el vehículo: ' + (error.response?.data?.error || error.message));
-      }
+    if (!validateFields()) return;
+
+    try {
+        if (editando) {
+            await actualizarVehiculo(vehiculo.id, vehiculo);
+            showToast('success', 'Vehículo actualizado con éxito');
+        } else {
+            await crearVehiculo(vehiculo);
+            showToast('success', 'Vehículo agregado con éxito');
+        }
+        setVehiculos(await obtenerVehiculos());
+        hideDialog();
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.error === 'Ya existe un vehículo con esta placa') {
+            showToast('error', 'Ya existe un vehículo con esta placa');
+        } else {
+            showToast('error', 'Error al guardar el vehículo');
+        }
+    }
+};
+
+
+  const showToast = (severity, summary) => {
+      toast.current.show({ severity, summary, life: 3000 });
   };
 
   const renderActions = (rowData) => {
@@ -86,28 +123,30 @@ const VehiculosList = () => {
 
   return (
       <Container>
+          <Toast ref={toast} />
+          <ConfirmDialog />
           <div>
               <h2 className="p-text-center">Lista de Vehículos</h2>
               <Toolbar
-            className="p-mb-4"
-            left={
-              <>
-                <Button
-                  label="Agregar Vehículo"
-                  icon="pi pi-plus"
-                  className="p-button-success"
-                  onClick={openNew}
-                />
-                <Link to="/entradas-salidas">
-                  <Button
-                    label="Ver Entradas y Salidas"
-                    icon="pi pi-calendar"
-                    className="p-button-info p-ml-2"
-                  />
-                </Link>{" "}
-              </>
-            }
-          />
+                  className="p-mb-4"
+                  left={
+                      <>
+                          <Button
+                              label="Agregar Vehículo"
+                              icon="pi pi-plus"
+                              className="p-button-success"
+                              onClick={openNew}
+                          />
+                          <Link to="/entradas-salidas">
+                              <Button
+                                  label="Ver Entradas y Salidas"
+                                  icon="pi pi-calendar"
+                                  className="p-button-info p-ml-2"
+                              />
+                          </Link>
+                      </>
+                  }
+              />
               <DataTable value={vehiculos} paginator rows={10} responsiveLayout="scroll" className="p-datatable-sm">
                   <Column field="id" header="Código" />  {/* Nueva columna para el ID del vehículo */}
                   <Column field="marca" header="Marca" />
@@ -125,9 +164,6 @@ const VehiculosList = () => {
                   footer={renderFooter()}
                   onHide={hideDialog}
               >
-                  {mensaje && <Messages severity="success" text={mensaje} />}
-                  {error && <Messages severity="error" text={error} />}
-
                   <div className="p-field">
                       <label htmlFor="marca">Marca:</label>
                       <InputText id="marca" name="marca" value={vehiculo.marca} onChange={(e) => setVehiculo({ ...vehiculo, marca: e.target.value })} />

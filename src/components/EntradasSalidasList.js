@@ -29,7 +29,6 @@ const EntradasSalidasList = () => {
 
     const fetchEntradasSalidas = async () => {
         try {
-            // Crear un objeto para almacenar los filtros que no sean nulos o vacíos
             const queryParams = new URLSearchParams();
     
             if (filters.fecha) {
@@ -79,7 +78,37 @@ const EntradasSalidasList = () => {
         setMostrarDialogo(false);
     };
 
+    const validateFields = () => {
+        if (!entradaSalida.vehiculoId) {
+            showToast('error', 'El ID del vehículo es obligatorio');
+            return false;
+        }
+        if (!entradaSalida.nombreMotorista) {
+            showToast('error', 'El nombre del motorista es obligatorio');
+            return false;
+        }
+        if (!entradaSalida.fecha) {
+            showToast('error', 'La fecha es obligatoria');
+            return false;
+        }
+        if (!entradaSalida.hora) {
+            showToast('error', 'La hora es obligatoria');
+            return false;
+        }
+        if (!/^\d+$/.test(entradaSalida.kilometraje)) {
+            showToast('error', 'El kilometraje debe ser un número entero positivo');
+            return false;
+        }
+        if (!entradaSalida.tipo) {
+            showToast('error', 'El tipo es obligatorio');
+            return false;
+        }
+        return true;
+    };
+
     const saveEntradaSalida = async () => {
+        if (!validateFields()) return;
+
         try {
             const fechaFormateada = entradaSalida.fecha.toISOString().split('T')[0];
             const horaFormateada = entradaSalida.hora;
@@ -99,7 +128,7 @@ const EntradasSalidasList = () => {
             fetchEntradasSalidas();
             hideDialog();
         } catch (error) {
-            showToast('error', error.response?.data?.error || error.message);
+            showToast('error', 'Error al guardar el registro');
         }
     };
 
@@ -161,11 +190,10 @@ const EntradasSalidasList = () => {
                 <div className="p-grid p-mb-4 p-align-center p-justify-start">
                     <div className="p-col-12 p-md-2 p-p-2">
                         <Calendar id="fecha" name="fecha" value={filters.fecha} onChange={(e) => handleFilterChange(e, 'fecha')} dateFormat="dd/mm/yy" placeholder="Filtrar por fecha" />
-                    </div>
-                    <div className="p-col-12 p-md-2 p-p-2">
+                  
                         <InputText id="vehiculoId" placeholder="Filtrar por vehículo" value={filters.vehiculoId} onChange={(e) => handleFilterChange(e, 'vehiculoId')} />
-                    </div>
-                    <div className="p-col-12 p-md-2 p-p-2">
+                  
+                    
                         <InputText id="nombreMotorista" placeholder="Filtrar por motorista" value={filters.nombreMotorista} onChange={(e) => handleFilterChange(e, 'nombreMotorista')} />
                     </div>
                     <div className="p-col-12 p-md-3 p-p-2">
