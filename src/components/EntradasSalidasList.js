@@ -191,7 +191,7 @@ const EntradasSalidasList = () => {
                     <div className="p-col-12 p-md-2 p-p-2">
                         <Calendar id="fecha" name="fecha" value={filters.fecha} onChange={(e) => handleFilterChange(e, 'fecha')} dateFormat="dd/mm/yy" placeholder="Filtrar por fecha" />
                   
-                        <InputText id="vehiculoId" placeholder="Filtrar por vehículo" value={filters.vehiculoId} onChange={(e) => handleFilterChange(e, 'vehiculoId')} />
+                        <InputText id="vehiculoId" placeholder="Filtrar por codigo vehículo" value={filters.vehiculoId} onChange={(e) => handleFilterChange(e, 'vehiculoId')} />
                   
                     
                         <InputText id="nombreMotorista" placeholder="Filtrar por motorista" value={filters.nombreMotorista} onChange={(e) => handleFilterChange(e, 'nombreMotorista')} />
@@ -203,7 +203,8 @@ const EntradasSalidasList = () => {
                 </div>
 
                 <DataTable value={entradasSalidas} paginator rows={10} responsiveLayout="scroll" className="p-datatable-sm">
-                    <Column field="vehiculoId" header="ID Vehículo" />
+                    <Column field="vehiculoId" header="Codigo Vehículo" />
+                    <Column field="Vehiculo.placa" header="Placa Vehículo" />
                     <Column field="nombreMotorista" header="Nombre del Motorista" />
                     <Column field="fecha" header="Fecha" body={(rowData) => new Date(rowData.fecha).toLocaleDateString()} />
                     <Column field="hora" header="Hora" />
