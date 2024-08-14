@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import Container from './Container';
 import 'primeflex/primeflex.css';
 
+  //Componente que muestra la lista de vehículos y permite CRUD de vehículos.
 const EntradasSalidasList = () => {
     const [entradasSalidas, setEntradasSalidas] = useState([]);
     const [entradaSalida, setEntradaSalida] = useState({ vehiculoId: '', nombreMotorista: '', fecha: null, hora: '', kilometraje: '', tipo: '' });
@@ -27,6 +28,7 @@ const EntradasSalidasList = () => {
         fetchEntradasSalidas();
     }, []);
 
+    //Obtiene la lista de entradas y salidas desde la API, aplicando los filtros si están presentes.
     const fetchEntradasSalidas = async () => {
         try {
             const queryParams = new URLSearchParams();
@@ -49,6 +51,8 @@ const EntradasSalidasList = () => {
         }
     };
 
+
+    //Maneja la eliminación de una entrada/salida con confirmación previa.
     const handleDelete = async (id) => {
         confirmDialog({
             message: '¿Está seguro de que desea eliminar este registro?',
@@ -62,12 +66,14 @@ const EntradasSalidasList = () => {
         });
     };
 
+    //Abre el modal para agregar una nueva entrada/salida.
     const openNew = () => {
         setEntradaSalida({ vehiculoId: '', nombreMotorista: '', fecha: null, hora: '', kilometraje: '', tipo: '' });
         setEditando(false);
         setMostrarDialogo(true);
     };
 
+    //Abre el modal para editar una entrada/salida existente.
     const openEdit = (es) => {
         setEntradaSalida({ ...es, fecha: new Date(es.fecha), hora: es.hora });
         setEditando(true);
@@ -78,6 +84,7 @@ const EntradasSalidasList = () => {
         setMostrarDialogo(false);
     };
 
+    //Valida los campos del formulario antes de guardar.
     const validateFields = () => {
         if (!entradaSalida.vehiculoId) {
             showToast('error', 'El ID del vehículo es obligatorio');
@@ -106,6 +113,7 @@ const EntradasSalidasList = () => {
         return true;
     };
 
+    //Guarda una nueva entrada/salida o actualiza una existente.
     const saveEntradaSalida = async () => {
         if (!validateFields()) return;
 
@@ -132,10 +140,12 @@ const EntradasSalidasList = () => {
         }
     };
 
+    //Muestra notificaicones.
     const showToast = (severity, summary) => {
         toast.current.show({ severity, summary, life: 3000 });
     };
 
+    //Renderiza las acciones de edición y eliminación en cada fila de la tabla.
     const renderActions = (rowData) => {
         return (
             <div>
@@ -154,19 +164,24 @@ const EntradasSalidasList = () => {
         );
     };
 
+    //// Opciones para el campo de tipo: Entrada o Salida
     const tipoOptions = [
         { label: 'Entrada', value: 'entrada' },
         { label: 'Salida', value: 'salida' }
     ];
 
+    //Maneja los cambios en los filtros.
     const handleFilterChange = (e, field) => {
         setFilters({ ...filters, [field]: e.target ? e.target.value : e.value });
     };
 
+    //Aplica los filtros a la lista de entradas/salidas.
     const applyFilters = () => {
         fetchEntradasSalidas();
     };
 
+    //Limpia los filtros y recarga la lista de entradas/salidas.
+    //Se debe hacer doble click para que refresque
     const clearFilters = () => {
         setFilters({ fecha: null, vehiculoId: '', nombreMotorista: '' });
         fetchEntradasSalidas();

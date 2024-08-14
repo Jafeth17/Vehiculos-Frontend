@@ -1,7 +1,8 @@
 import axios from 'axios';
-
+//Se declara la url base de la API para las entradas y salidas
 const API_URL = 'http://localhost:5000/vehiculos';
 
+//Estructura para cada una de las consultas de vehiculos
 const obtenerVehiculos = async () => {
     const response = await axios.get(API_URL);
     return response.data;

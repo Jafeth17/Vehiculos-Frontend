@@ -7,6 +7,8 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';                               
 import 'primeflex/primeflex.css';                                 
 
+
+//Se establecen las rutas para la navegacion
 function App() {
     return (
         <Router>

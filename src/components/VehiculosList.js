@@ -10,7 +10,9 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import Container from './Container';
-
+/*
+  Componente que muestra la lista de vehículos y permite CRUD de vehículos.
+ */
 const VehiculosList = () => {
   const [vehiculos, setVehiculos] = useState([]);
   const [vehiculo, setVehiculo] = useState({ marca: '', modelo: '', placa: '' });
@@ -27,6 +29,7 @@ const VehiculosList = () => {
       fetchVehiculos();
   }, []);
 
+   /* Maneja la eliminación de un vehículo con confirmación previa.*/
   const handleDelete = async (id) => {
       confirmDialog({
           message: '¿Está seguro de que desea eliminar este vehículo?',
@@ -39,23 +42,23 @@ const VehiculosList = () => {
           }
       });
   };
-
+  //Abre el modal para agregar un nuevo vehículo.
   const openNew = () => {
       setVehiculo({ marca: '', modelo: '', placa: '' });
       setEditando(false);
       setMostrarDialogo(true);
   };
-
+  //Abre el modal para editar un vehículo existente.
   const openEdit = (vehiculo) => {
       setVehiculo({ ...vehiculo });
       setEditando(true);
       setMostrarDialogo(true);
   };
-
+  //Oculta el modal de agregar/editar vehículo.
   const hideDialog = () => {
       setMostrarDialogo(false);
   };
-
+  //Validaciones de datos obligatorios y campo unico
   const validateFields = () => {
       if (!vehiculo.marca) {
           showToast('error', 'La marca es obligatoria');
@@ -75,7 +78,7 @@ const VehiculosList = () => {
       }
       return true;
   };
-
+  //Funcion para guardar un vehiculo nuevo o editado.
   const saveVehiculo = async () => {
     if (!validateFields()) return;
 
@@ -98,7 +101,7 @@ const VehiculosList = () => {
     }
 };
 
-
+// Para mostrar notificaiones.
   const showToast = (severity, summary) => {
       toast.current.show({ severity, summary, life: 3000 });
   };
